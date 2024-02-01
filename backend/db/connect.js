@@ -4,8 +4,7 @@ console.log(connectionString);
 const connectDB = (url = connectionString) => {
   return mongoose
     .connect(url, {
-      //   useNewUrlParser: true,
-      // useCreateIndex: true
+      dbName: "chat-app",
     })
     .then(() => {
       console.log("Connected");
