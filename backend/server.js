@@ -11,8 +11,7 @@ const app = express();
 dotenv.config();
 
 const connectDB = require("./db/connect");
-
-app.use(express.json());
+const authRouts = require("./routes/authRoutes");
 
 app.use(express.json());
 app.use(helmet());
@@ -25,6 +24,9 @@ app.use(
     max: 100,
   })
 );
+
+app.use("/api/v1/auth", authRouts);
+
 let port = process.env.PORT || 5000;
 
 const start = async () => {
