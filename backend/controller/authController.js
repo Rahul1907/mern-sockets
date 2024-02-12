@@ -47,7 +47,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
   const user = await User.findOne({ email: email });
   if (user) {
-    if (user.password === password) {
+    if (await user.matchPassword(password)) {
       res.status(StatusCodes.OK).json({
         id: user._id,
         name: user.name,

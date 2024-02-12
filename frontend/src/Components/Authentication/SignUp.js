@@ -5,7 +5,7 @@ import { VStack } from "@chakra-ui/layout";
 import { useToast } from "@chakra-ui/toast";
 import axios from "axios";
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 
 const SignUp = () => {
   const [show, setShow] = useState(false);
@@ -51,14 +51,19 @@ const SignUp = () => {
         },
       };
       const { data } = await axios.post(
-        "/api/user",
+        "http://127.0.0.1:5000/api/v1/auth/signup",
         {
           name,
           email,
           password,
           pic,
         },
-        config
+        {
+          headers: {
+            "Content-type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+          },
+        }
       );
       console.log(data);
       toast({
@@ -72,6 +77,7 @@ const SignUp = () => {
       setPicLoading(false);
       navigate("/chats");
     } catch (error) {
+      setPicLoading(false);
       toast({
         title: "Error Occured!",
         description: error.response.data.message,
@@ -80,7 +86,6 @@ const SignUp = () => {
         isClosable: true,
         position: "bottom",
       });
-      setPicLoading(false);
     }
   };
 
@@ -96,7 +101,6 @@ const SignUp = () => {
       });
       return;
     }
-    console.log(pics);
     if (pics.type === "image/jpeg" || pics.type === "image/png") {
       const data = new FormData();
       data.append("file", pics);

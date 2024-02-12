@@ -12,6 +12,11 @@ dotenv.config();
 
 const connectDB = require("./db/connect");
 const authRouts = require("./routes/authRoutes");
+const errorHandlerMiddleware = require("./middleware/errorhandling");
+const notFound = require("./middleware/not-found");
+
+app.use(errorHandlerMiddleware);
+app.use(notFound);
 
 app.use(express.json());
 app.use(helmet());
