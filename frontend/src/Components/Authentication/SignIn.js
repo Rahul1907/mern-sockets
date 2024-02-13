@@ -41,7 +41,7 @@ const SignIn = () => {
       };
 
       const { data } = await axios.post(
-        "/api/user/login",
+        "http://127.0.0.1:5000/api/v1/auth/login",
         { email, password },
         config
       );
@@ -56,7 +56,7 @@ const SignIn = () => {
       // setUser(data);
       localStorage.setItem("userInfo", JSON.stringify(data));
       setLoading(false);
-      navigate.push("/chats");
+      navigate("/chats");
     } catch (error) {
       toast({
         title: "Error Occured!",
