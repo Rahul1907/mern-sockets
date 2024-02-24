@@ -15,6 +15,7 @@ const connectDB = require("./db/connect");
 const authRouts = require("./routes/authRoutes");
 const userRouts = require("./routes/userRoutes");
 const chatRouts = require("./routes/chatRoutes");
+const messageRouts = require("./routes/messageRoutes");
 
 app.use(cors());
 app.use(express.json());
@@ -34,6 +35,7 @@ app.use(
 app.use("/api/v1/auth", authRouts);
 app.use("/api/v1", userRouts);
 app.use("/api/v1/chat", chatRouts);
+app.use("/api/v1/message", messageRouts);
 
 let port = process.env.PORT || 5000;
 
