@@ -3,6 +3,7 @@ const BadRequest = require("../errors/bad-request");
 const Chat = require("../models/ChatModel");
 const { StatusCodes } = require("http-status-codes");
 const User = require("../models/userModel");
+const NotFound = require("../errors/not-found-error");
 
 const accessChat = asyncHandler(async (req, res) => {
   const { userId } = req.body;
@@ -10,7 +11,6 @@ const accessChat = asyncHandler(async (req, res) => {
   if (!userId) {
     new BadRequest("user Id Required");
   }
-
   let isChat = await Chat.find({
     isGroupChat: false,
     $and: [
@@ -49,7 +49,7 @@ const accessChat = asyncHandler(async (req, res) => {
 
 const fetchChats = asyncHandler(async (req, res) => {
   try {
-    Chat.find({ user: { $elemMatch: { $eq: req.user._id } } })
+    Chat.find({ users: { $elemMatch: { $eq: req.user._id } } })
       .populate("users", "-password")
       .populate("latestMessage")
       .sort({ updatedAt: -1 })
@@ -59,4 +59,116 @@ const fetchChats = asyncHandler(async (req, res) => {
   } catch (error) {}
 });
 
-module.exports = { accessChat, fetchChats };
+const createGroupChat = asyncHandler(async (req, res) => {
+  const { users, chatName } = req.body;
+  if (!users) {
+    return new BadRequest("Pleas Fill all fields");
+  }
+
+  let usersList = users;
+
+  if (usersList.length < 2) {
+    return new BadRequest("More than 2 users required");
+  }
+
+  usersList.push(req.user);
+
+  try {
+    const groupChat = await Chat.create({
+      chatName: chatName,
+      users: usersList,
+      isGroupChat: true,
+      groupAdmin: req.user,
+    });
+
+    const fullGroupChat = await Chat.findOne({ _id: groupChat.id })
+      .populate("users", "-password")
+      .populate("groupAdmin", "-password");
+
+    res.status(StatusCodes.OK).json(fullGroupChat);
+  } catch (error) {}
+
+  try {
+  } catch (error) {}
+});
+
+const renameGroupChat = asyncHandler(async (req, res) => {
+  const { chatName, chatId } = req.body;
+
+  if (!chatName || !chatId) {
+    return new BadRequest("Please Fill Required Fields");
+  }
+
+  let updatedChat = await Chat.findByIdAndUpdate(
+    chatId,
+    {
+      chatName,
+    },
+    { new: true }
+  )
+    .populate("users", "-password")
+    .populate("groupAdmin", "-password");
+
+  if (!updatedChat) {
+    res.json(new NotFound("Group Not Found"));
+  } else {
+    res.json(updatedChat);
+  }
+});
+
+const addUserGroupChat = asyncHandler(async (req, res) => {
+  const { userId, chatId } = req.body;
+
+  if (!userId || !chatId) {
+    return new BadRequest("Please Fill Required Fields");
+  }
+
+  let updatedChat = await Chat.findByIdAndUpdate(
+    chatId,
+    {
+      $push: { users: userId },
+    },
+    { new: true }
+  )
+    .populate("users", "-password")
+    .populate("groupAdmin", "-password");
+
+  if (!updatedChat) {
+    res.json(new NotFound("Group Not Found"));
+  } else {
+    res.json(updatedChat);
+  }
+});
+
+const removeUserGroupChat = asyncHandler(async (req, res) => {
+  const { userId, chatId } = req.body;
+
+  if (!userId || !chatId) {
+    return new BadRequest("Please Fill Required Fields");
+  }
+
+  let updatedChat = await Chat.findByIdAndUpdate(
+    chatId,
+    {
+      $pull: { users: userId },
+    },
+    { new: true }
+  )
+    .populate("users", "-password")
+    .populate("groupAdmin", "-password");
+
+  if (!updatedChat) {
+    res.json(new NotFound("Group Not Found"));
+  } else {
+    res.json(updatedChat);
+  }
+});
+
+module.exports = {
+  accessChat,
+  fetchChats,
+  createGroupChat,
+  renameGroupChat,
+  addUserGroupChat,
+  removeUserGroupChat,
+};
