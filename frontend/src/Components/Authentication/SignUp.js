@@ -6,6 +6,7 @@ import { useToast } from "@chakra-ui/toast";
 import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axiosInstance from "../../axiosInstance";
 
 const SignUp = () => {
   const [show, setShow] = useState(false);
@@ -50,8 +51,8 @@ const SignUp = () => {
           "Content-type": "application/json",
         },
       };
-      const { data } = await axios.post(
-        "http://127.0.0.1:5000/api/v1/auth/signup",
+      const { data } = await axiosInstance.post(
+        "api/v1/auth/signup",
         {
           name,
           email,

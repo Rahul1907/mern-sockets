@@ -26,9 +26,9 @@ import { BellIcon, ChevronDownIcon } from "@chakra-ui/icons";
 import { ChatState } from "../../Context/ChatProvider";
 import ProfileModal from "./ProfileModal";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import UserListItem from "../UserAvtar/UserListItem";
 import ChatLoading from "../ChatLoading";
+import axiosInstance from "../../axiosInstance";
 
 const SideDrawer = () => {
   const navigate = useNavigate();
@@ -67,9 +67,12 @@ const SideDrawer = () => {
           Authorization: `Bearer ${user.token}`,
         },
       };
-      const { data } = await axios.get(`/api/user?search=${search}`, config);
+      const { data } = await axiosInstance.get(
+        `/api/v1/user?search=${search}`,
+        config
+      );
       setLoading(false);
-      setSearchResult(data);
+      setSearchResult(data.users);
     } catch (error) {
       setLoading(false);
     }
@@ -85,11 +88,15 @@ const SideDrawer = () => {
         },
       };
 
-      const { data } = await axios.post("api/chat", { userId }, config);
+      const { data } = await axiosInstance.post(
+        "api/v1/chat",
+        { userId },
+        config
+      );
+      if (!chats.find((c) => c._id === data._id))
+        setChats([data.chat, ...chats]);
 
-      if (!chats.find((c) => c._id === data._id)) setChats([data, ...chats]);
-
-      setSelectedChat(data);
+      setSelectedChat(data.chat);
       setChatLoading(false);
       onClose();
     } catch (error) {

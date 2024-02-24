@@ -6,13 +6,13 @@ import { AddIcon } from "@chakra-ui/icons";
 import ChatLoading from "./ChatLoading";
 import { getSender } from "../config/ChatLogic";
 import GroupChatModal from "./Miscellaneous/GroupChatModal";
+import axiosInstance from "../axiosInstance";
 
 const MyChats = () => {
   const [loggedUser, setLoggedUser] = useState();
   const { selectedChat, setSelectedChat, user, chats, setChats } = ChatState();
 
   const toast = useToast();
-
   const fetchChats = async () => {
     try {
       const config = {
@@ -20,12 +20,10 @@ const MyChats = () => {
           Authorization: `Bearer ${user.token}`,
         },
       };
-      const { data } = await axios.get(
-        `http://127.0.0.1:5000/api/chat`,
-        config
-      );
-      setChats(data);
+      const { data } = await axiosInstance.get(`api/v1/chat`, config);
+      setChats(data.chats);
     } catch (error) {
+      console.log(error);
       toast({
         title: "Error Occured!",
         description: "Failed to load chats",
@@ -39,8 +37,13 @@ const MyChats = () => {
 
   useEffect(() => {
     setLoggedUser(JSON.parse(localStorage.getItem("userInfo")));
-    fetchChats();
   }, []);
+
+  useEffect(() => {
+    if (user.token) {
+      fetchChats();
+    }
+  }, [user]);
 
   return (
     <Box

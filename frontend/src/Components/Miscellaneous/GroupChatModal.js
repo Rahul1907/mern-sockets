@@ -18,6 +18,7 @@ import { useState } from "react";
 import { ChatState } from "../../Context/ChatProvider";
 import UserListItem from "../UserAvtar/UserListItem";
 import UserBadgeItem from "../UserAvtar/UserBadgeItem";
+import axiosInstance from "../../axiosInstance";
 // import UserBadgeItem from "../UserAvatar/UserBadgeItem";
 // import UserListItem from "../UserAvatar/UserListItem";
 
@@ -60,13 +61,12 @@ const GroupChatModal = ({ children }) => {
           Authorization: `Bearer ${user.token}`,
         },
       };
-      const { data } = await axios.get(
-        `http://127.0.0.1:5000/api/user?search=${search}`,
+      const { data } = await axiosInstance.get(
+        `api/v1/user?search=${search}`,
         config
       );
-      console.log(data);
       setLoading(false);
-      setSearchResult(data);
+      setSearchResult(data.users);
     } catch (error) {
       toast({
         title: "Error Occured!",
@@ -102,10 +102,10 @@ const GroupChatModal = ({ children }) => {
         },
       };
       const { data } = await axios.post(
-        `/api/chat/group`,
+        `/api/v1/chat/group`,
         {
-          name: groupChatName,
-          users: JSON.stringify(selectedUsers.map((u) => u._id)),
+          chatName: groupChatName,
+          users: selectedUsers.map((u) => u._id),
         },
         config
       );
@@ -119,6 +119,7 @@ const GroupChatModal = ({ children }) => {
         position: "bottom",
       });
     } catch (error) {
+      console.log(error);
       toast({
         title: "Failed to Create the Chat!",
         description: error.response.data,

@@ -54,7 +54,7 @@ const fetchChats = asyncHandler(async (req, res) => {
       .populate("latestMessage")
       .sort({ updatedAt: -1 })
       .then((result) => {
-        res.status(StatusCodes.OK).json({ result });
+        res.status(StatusCodes.OK).json({ chats: result });
       });
   } catch (error) {}
 });

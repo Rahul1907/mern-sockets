@@ -6,6 +6,7 @@ import { useState } from "react";
 import axios from "axios";
 import { useToast } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
+import axiosInstance from "../../axiosInstance";
 // import { ChatState } from "../../Context/ChatProvider";
 
 const SignIn = () => {
@@ -40,8 +41,8 @@ const SignIn = () => {
         },
       };
 
-      const { data } = await axios.post(
-        "http://127.0.0.1:5000/api/v1/auth/login",
+      const { data } = await axiosInstance.post(
+        "api/v1/auth/login",
         { email, password },
         config
       );
