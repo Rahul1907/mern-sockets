@@ -14,14 +14,25 @@ import UpdateGroupChatModal from "./Miscellaneous/UpdateGroupChatModal";
 import { ChatState } from "../Context/ChatProvider";
 import axiosInstance from "../axiosInstance";
 import { getSender, getSenderFull } from "../config/ChatLogic";
+import io from "socket.io-client";
+
+const ENDPOINT = "http://localhost:5000";
+var socket, selectedChatCompare;
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [newMessage, setNewMessage] = useState("");
+  const [socketConnected, setSocketConnected] = useState(false);
   // const [typing, setTyping] = useState(false);
   // const [istyping, setIsTyping] = useState(false);
   const toast = useToast();
+
+  useEffect(() => {
+    socket = io(ENDPOINT);
+    socket.emit("setup", user);
+    socket.on("connection", () => setSocketConnected(true));
+  }, []);
 
   const { selectedChat, setSelectedChat, user, notification, setNotification } =
     ChatState();

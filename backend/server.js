@@ -42,7 +42,22 @@ let port = process.env.PORT || 5000;
 const start = async () => {
   try {
     await connectDB();
-    app.listen(port, console.log(`Port running on port ${port}`));
+    let server = app.listen(port, console.log(`Port running on port ${port}`));
+    const io = require("socket.io")(server, {
+      pingTimeout: 60000,
+      cors: {
+        origin: "http://localhost:3000",
+      },
+    });
+
+    io.on("connection", (socket) => {
+      console.log("connected to socket.io");
+      socket.on("setup", (userData) => {
+        socket.join(userData.id);
+        console.log(userData);
+        socket.emit("connected");
+      });
+    });
   } catch (error) {
     console.log(error);
   }
